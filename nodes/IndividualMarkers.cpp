@@ -367,13 +367,13 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
     try{
       tf::StampedTransform CamToOutput;
       try{
-	tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(0.1));
+	tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(0.5));
 	tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
       }
       catch (tf::TransformException ex){
 	ROS_ERROR("%s",ex.what());
       }
-
+      //std::cout << "Size of transform list: "<<marker_detector.markers->size() << std::endl;
       arPoseMarkers_.markers.clear ();
       for (size_t i=0; i<marker_detector.markers->size(); i++) 
 	     {
@@ -382,13 +382,13 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
 	     Pose p = (*(marker_detector.markers))[i].pose;
         //This is where my filter comes to use /Fredrik Macintosh
         // Count how many iterations of the loop a tag exists.
-        iterationArray[id]++;
+        //iterationArray[id]++;
         //Make sure we know it is found
-        idFoundArray[id] = true;
+        //idFoundArray[id] = true;
 
         //Tag has to exist for more than filterParam iterations to be detected.
-          if (iterationArray[id] > filterParam)
-          {
+          //if (iterationArray[id] > filterParam)
+          //{
                 
           double px = p.translation[0]/100.0;
           double py = p.translation[1]/100.0;
@@ -413,20 +413,21 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
           markerFrame += id_string;
           tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
           tf_broadcaster->sendTransform(camToMarker);
+          //std::cout << "Name of transform: " << camToMarker.child_frame_id_ << std::endl;
 
           //This part of the filter decreases the tags existence counter if it's not found.
           //Note: It only decreases if it's detecting a tag (As in; Detecting tag 4, can't see tag 5. Decreasing tag 5).
-          for (int k = 0; k < 6; k++)
-          {
-            if (!idFoundArray[k] && iterationArray[k] > 0)
-            {
-            iterationArray[k]--;
-            } else
-          {
-        idFoundArray[k] = false;
+       //   for (int k = 0; k < 6; k++)
+        //  {
+         //   if (!idFoundArray[k] && iterationArray[k] > 0)
+          //  {
+           // iterationArray[k]--;
+            //} else
+          //{
+        //idFoundArray[k] = false;
       }
-    }
-  }
+  //  }
+  //}
 }				
 	 /* //Create the rviz visualization messages
 	  tf::poseTFToMsg (markerPose, rvizMarker_.pose);
@@ -496,7 +497,7 @@ void getPointCloudCallback (const sensor_msgs::PointCloud2ConstPtr &msg)
       arPoseMarkers_.header.stamp = image_msg->header.stamp;
       arMarkerPub_.publish (arPoseMarkers_);
     */
-    }
+    //}
 
     catch (cv_bridge::Exception& e){
       ROS_ERROR ("Could not convert from '%s' to 'rgb8'.", image_msg->encoding.c_str ());
